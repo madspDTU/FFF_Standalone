@@ -242,13 +242,6 @@ public class Link{
 				Link nextLink = cyclist.getRoute().peek();
 				if(cyclist.advanceCyclist(this.id, time)){ // Checking whether it is possible to advance the cyclist
 					// ... and does so if possible.
-
-					if(this.id != Runner.sourceLink.getId()){
-						cyclist.reportSpeed(length, time);
-						reportOutputTime(time);
-						reportSpeedTime(time, cyclist.getSpeedReport().getLast()[2]);
-					}
-					cyclist.initialiseNewSpeedReportElement(nextLink.id, time);
 					sendNotificationBasedOnNextInQ();
 				} else { //It was not possible to advance the cyclist due to congestion.
 					sendNotificationDueToDelay(nextLink);

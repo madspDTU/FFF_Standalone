@@ -58,6 +58,14 @@ public class Cyclist {
 			double tArrivalAtNextLink = pseudoLane.tEnd - Runner.lambda_c/speed;
 			moveToNextQ(nextLink, tArrivalAtNextLink);
 			nextLink.sendNotification(Math.max(tArrivalAtNextLink,nextLink.getWakeUpTime()));
+			
+			
+			if(linkId != Runner.sourceLink.getId()){
+				this.reportSpeed(currentLink.getLength(), this.tStart);
+				currentLink.reportOutputTime(this.tStart);
+				currentLink.reportSpeedTime(this.tStart, this.getSpeedReport().getLast()[2]);
+			}
+			this.initialiseNewSpeedReportElement(nextLink.getId(), time);
 			return true;
 		} else {
 			this.speed = originalSpeed; // reset speed to original value;
