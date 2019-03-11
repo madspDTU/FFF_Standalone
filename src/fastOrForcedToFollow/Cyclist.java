@@ -24,8 +24,8 @@ public class Cyclist {
 	Cyclist(int id, double cruiseSpeed, double z_c, LinkedList<Link> route) throws InstantiationException, IllegalAccessException{
 		this.id = id;
 		this.desiredSpeed = cruiseSpeed;
-		this.theta_0 = Runner.theta_0 + z_c * Runner.zeta_0;
-		this.theta_1 = Runner.theta_1 + z_c * Runner.zeta_1;
+		this.theta_0 = Runner.THETA_0 + z_c * Runner.ZETA_0;
+		this.theta_1 = Runner.THETA_1 + z_c * Runner.ZETA_1;
 		this.route = route;
 		this.ltm = new LinkTransmissionModel(theta_0, theta_1);
 		speedReport.add(new Double[]{-1d, 0d,-1d});
@@ -55,7 +55,7 @@ public class Cyclist {
 			this.tStart = Double.max(pseudoLane.tReady, time);
 			currentLink.setWakeUpTime(this.tStart);
 			pseudoLane.updateTs(speed, time);
-			double tArrivalAtNextLink = pseudoLane.tEnd - Runner.lambda_c/speed;
+			double tArrivalAtNextLink = pseudoLane.tEnd - Runner.LAMBDA_c/speed;
 			moveToNextQ(nextLink, tArrivalAtNextLink);
 			nextLink.sendNotification(Math.max(tArrivalAtNextLink,nextLink.getWakeUpTime()));
 			

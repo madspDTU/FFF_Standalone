@@ -12,7 +12,7 @@ public class LinkTransmissionModel {
 	}
 	
 	public double getSafetyBufferTime(double speed) {
-		return (getSafetyBufferDistance(speed) - Runner.lambda_c)   /   speed;
+		return (getSafetyBufferDistance(speed) - Runner.LAMBDA_c)   /   speed;
 	}
 	
 	public PseudoLane selectUnsatisfactoryPseudoLane(Link nextLink, int maxLaneIndex){
@@ -28,7 +28,7 @@ public class LinkTransmissionModel {
 	}
 
 	public double getVMax(PseudoLane pseudoLane, double time, Cyclist cyclist){
-		double constants = Runner.lambda_c + pseudoLane.length - this.theta_0;
+		double constants = Runner.LAMBDA_c + pseudoLane.length - this.theta_0;
 		if(time >= pseudoLane.tEnd - this.theta_1*this.theta_1/4./constants){ 
 			return 4*Math.pow((constants/this.theta_1),2); //Case 4 from paper
 		}

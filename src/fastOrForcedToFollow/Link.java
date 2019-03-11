@@ -86,14 +86,14 @@ public class Link{
 	Link(int id, double width, double length) throws InstantiationException, IllegalAccessException{
 		this.id = id;
 		this.length = length;
-		this.Psi = 1 + (int) Math.floor((width-Runner.deadSpace)/Runner.omega);
+		this.Psi = 1 + (int) Math.floor((width-Runner.DEAD_SPACE)/Runner.OMEGA);
 		psi = createPseudoLanes();
 		speedReports = new LinkedList[Psi];
 		for(int i = 0; i < Psi; i++){
 			speedReports[i] = new LinkedList<Double>();
 		}
-		outQ = (PriorityQueue<CyclistQObject>) Runner.priorityQueueClassForLinks.newInstance();
-		this.totalLaneLength = this.length * this.Psi * Runner.capacityMultiplier;
+		outQ = (PriorityQueue<CyclistQObject>) Runner.PRIORITY_QUEUE_CLASS_FOR_LINKS.newInstance();
+		this.totalLaneLength = this.length * this.Psi * Runner.CAPACITY_MULTIPLIER;
 	}
 
 	/**
@@ -306,7 +306,7 @@ public class Link{
 			if(tEnd <= Runner.t){
 				sendShortTermNotification(this.id, tEnd);
 			} else {
-				int timeSlot  = ((int) tEnd) / ((int) Runner.timeStep) + 1;
+				int timeSlot  = ((int) tEnd) / ((int) Runner.TIMESTEP) + 1;
 				if( !Runner.notificationArray[timeSlot].containsKey(this.id) || 
 						tEnd < Runner.notificationArray[timeSlot].get(this.id).time ){
 					Runner.tieBreaker++;

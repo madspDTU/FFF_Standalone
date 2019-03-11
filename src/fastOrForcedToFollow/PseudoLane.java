@@ -34,7 +34,7 @@ public class PseudoLane {
 	
 	public void updateTs(double speed, double time) {
 		double tStartBasis = Double.max(time, this.tReady);
-		this.tReady = tStartBasis + Runner.lambda_c / speed;
+		this.tReady = tStartBasis + Runner.LAMBDA_c / speed;
 		this.tEnd = this.tReady + this.length / speed;
 	}
 }

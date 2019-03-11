@@ -23,18 +23,18 @@ public class Runner {
 	/**
 	 * The width (in metres) of the last link in the link series.
 	 */
-	public static final double widthOfLastLink = 2;
+	public static final double WIDTH_OF_LAST_LINK = 2;
 
 
 	/**
 	 * The width (in metres) of all links but the last link in the link series.
 	 */
-	public static final double widthOfFirstLinks = 3;
+	public static final double WIDTH_OF_FIRST_LINKS = 3;
 
 	/**
-	 * The length of each link in the link series.
+	 * The length of each link in the link series. If non-positive then iterating through (20,50,100,200,500)
 	 */
-	public static final double lengthOfLinks = 100;
+	public static double LENGTH_OF_LINKS = 10;
 
 	/**
 	 * The numbers of links in serial used in the simulation.
@@ -44,7 +44,7 @@ public class Runner {
 	/**
 	 * A capacity multiplier that can be used to increase the total lane length, see {@link Link#getTotalLaneLength()}.
 	 */
-	public static final double capacityMultiplier = 1;  // The totalLaneLength is multiplied with this number;
+	public static final double CAPACITY_MULTIPLIER = 1;  // The totalLaneLength is multiplied with this number;
 
 
 	/*
@@ -53,12 +53,12 @@ public class Runner {
 	/**
 	 * Additional width needed to gain another efficient lane. Based on Buch & Greibe (2015).
 	 */
-	public static final double omega = 1.25; 
+	public static final double OMEGA = 1.25; 
 
 	/**
 	 * Dead horizontal space on bicycle paths that is unused. Based on Buch & Greibe (2015).
 	 */
-	public static final double deadSpace = 0.4;
+	public static final double DEAD_SPACE = 0.4;
 
 
 	/*
@@ -68,7 +68,7 @@ public class Runner {
 	 * The base directory for storing output.
 	 */
 	//public static String baseDir = "Z:/git/fastOrForcedToFollow/output/ToyNetwork";
-	public static String baseDir = "C:/Users/madsp/git/fastOrForcedToFollow/output/ToyNetwork";
+	public static String baseDir = "C:/Users/madsp/git/FFF_Standalone/output/ToyNetwork";
 
 	/**
 	 * The span of the simulation period (in seconds).
@@ -78,22 +78,22 @@ public class Runner {
 	/**
 	 * The timestep used in the simulation.
 	 */
-	public static final double timeStep = 1d;
+	public static final double TIMESTEP = 1d;
 
 	/**
 	 * Maximum number of cyclist to enter the system during the simulation.
 	 */
-	public static final int maxN = 10000;
+	public static final int MAX_N = 10000;
 
 	/**
 	 * The number of cyclists subtracted from the previous simulation until reaching 0 cyclists.
 	 */
-	public static final int stepSize = 50;
+	public static final int CYCLIST_STEPSIZE = 50;
 
 	/**
 	 * The random seed used for the the population.
 	 */
-	public static final int seed = 5355633;
+	public static final int SEED = 5355633;
 	//As a backup: 5355633;
 
 	/**
@@ -105,7 +105,7 @@ public class Runner {
 	 * The type of Q used for the priorityQ for links. Can be PriorityQueue.class or FibonacciHeap.class.
 	 */
 	@SuppressWarnings("rawtypes")
-	public static final Class<? extends PriorityQueue> priorityQueueClassForLinks = PriorityQueue.class; 
+	public static final Class<? extends PriorityQueue> PRIORITY_QUEUE_CLASS_FOR_LINKS = PriorityQueue.class; 
 
 
 	/*
@@ -114,12 +114,12 @@ public class Runner {
 	/**
 	 * The minimum allowed desired speed (lower bound for truncation).
 	 */
-	private static final double minimumAllowedDesiredSpeed = 2;  // Lowest allowed desired speed (lower truncation of distribution);
+	private static final double MINIMUM_ALLOWED_DESIRED_SPEED = 2;  // Lowest allowed desired speed (lower truncation of distribution);
 
 	/**
-	 * The distribution used for desired speeds. Valid options are (so far) "JohnsonSU" and "Logistic".
+	 * The distribution used for desired speeds. Valid options are (so far) "JohnsonSU", "Logistic" and "Homogeneous".
 	 */
-	private static final String desiredSpeedDistribution = "JohnsonSU";
+	private static final String DESIRED_SPEED_DISTRIBUTION = "JohnsonSU";
 
 
 	/*
@@ -128,22 +128,29 @@ public class Runner {
 	/**
 	 * One of the parameters for Johnson's SU-distribution, as estimated based on data from COWI.
 	 */
-	private static final double JohnsonGamma = -2.745957257392118;
+	private static final double JOHNSON_GAMMA = -2.745957257392118;
 
 	/**
 	 * One of the parameters for Johnson's SU-distribution, as estimated based on data from COWI.
 	 */
-	private static final double JohnsonXsi = 3.674350833333333;
+	private static final double JOHNSON_XSI = 3.674350833333333;
 
 	/**
 	 * One of the parameters for Johnson's SU-distribution, as estimated based on data from COWI.
 	 */
-	private static final double JohnsonDelta = 4.068155531972158;
+	private static final double JOHNSON_DELTA = 4.068155531972158;
 
 	/**
 	 * One of the parameters for Johnson's SU-distribution, as estimated based on data from COWI.
 	 */
-	private static final double JohnsonLambda = 3.494609779450189;
+	private static final double JOHNSON_LAMBDA = 3.494609779450189;
+
+	/**
+	 * The space mean speed [m/s] for desired speed used in certain tests
+	 */
+	private static final double SPACE_MEAN_SPEED = 6.1042421446652;
+
+
 
 
 	/*
@@ -152,12 +159,12 @@ public class Runner {
 	/**
 	 * Mean value of the logistic distribution estimated based on data from COWI.
 	 */
-	public static final double mu = 6.085984;
+	public static final double LOGISTIC_MU = 6.085984;
 
 	/**
 	 * Scale value of the logistic distribution estimated based on data from COWI.
 	 */
-	public static final double s = 0.610593; 
+	public static final double LOGISTIC_S = 0.610593; 
 
 
 	/*
@@ -166,24 +173,29 @@ public class Runner {
 	/**
 	 * Constant term in the square root model for safety distance.
 	 */
-	public static final double theta_0 = -4.220641337789;
+	//ORIGINAL public static final double THETA_0 = -4.220641337789;
+	public static final double THETA_0 = -4.233561639232980;
 	/**
 	 * Square root term in the square root model for safety distance.
 	 */
-	public static final double theta_1 =  4.602161217943;
+	//ORIGINAL public static final double THETA_1 =  4.602161217943;
+	public static final double THETA_1 =  4.601916313111973;
 	/**
 	 * Constant term in the square root model for standard deviation of safety distance.
 	 */
-	public static final double zeta_0 =  -4.3975231775567600;
+	//ORIGINAL public static final double ZETA_0 =  -4.3975231775567600;
+	public static final double ZETA_0 =  -4.397399476679904;
 	/**
 	 * Square root term in the square root model for standard deviation of safety distance.
 	 */
-	public static final double zeta_1 =  3.1095184592753986;
+	//ORIGINAL public static final double ZETA_1 =  3.1095184592753986;
+	public static final double ZETA_1 =  3.109430989546536;
+	
 	/**
 	 * Average length of a bicycle according to Andresen et al. (2014),
 	 * Basic Driving Dynamics of Cyclists, In: Simulation of Urban Mobility;
 	 */
-	public static final double lambda_c = 1.73; 
+	public static final double LAMBDA_c = 1.73; 
 
 
 
@@ -238,19 +250,29 @@ public class Runner {
 
 
 	public static void main(String[] args) throws IOException, InterruptedException, InstantiationException, IllegalAccessException{
-		for( N = maxN; N >= stepSize; N -= stepSize){
-			double startTime = System.currentTimeMillis();
-			System.out.println("Start of a simulation with " + N + " cyclists and " + L + " links.");
-			simulationPreparation();
-			System.out.println("1st part (Initialisation) finished after " + (System.currentTimeMillis()-startTime)/1000d + " seconds.");
-			simulation();
-			System.out.println("2nd part (Mobility Simul) finished after " + (System.currentTimeMillis()-startTime)/1000d + " seconds.");
-			if(reportSpeeds){	
-				exportSpeeds();
+		boolean stopAfterOne =  LENGTH_OF_LINKS <= 0 ? false : true;
+		
+		for(double d : new double[]{20,50,100,200,500}){
+			if(!stopAfterOne){
+				LENGTH_OF_LINKS = d;
 			}
-			System.out.println("3rd part (Xporting stuff) finished after " + (System.currentTimeMillis()-startTime)/1000d + " seconds.");
-			System.out.format(Locale.US, "%.3f microseconds per cyclist-link-interaction in total.%n%n", 
-					(System.currentTimeMillis()-startTime)/((double) N)/((double) L)*1000d);
+			for( N = MAX_N; N >= CYCLIST_STEPSIZE; N -= CYCLIST_STEPSIZE){
+				double startTime = System.currentTimeMillis();
+				System.out.println("Start of a simulation with " + N + " cyclists and " + L + " links.");
+				simulationPreparation();
+				System.out.println("1st part (Initialisation) finished after " + (System.currentTimeMillis()-startTime)/1000d + " seconds.");
+				simulation();
+				System.out.println("2nd part (Mobility Simul) finished after " + (System.currentTimeMillis()-startTime)/1000d + " seconds.");
+				if(reportSpeeds){	
+					exportSpeeds();
+				}
+				System.out.println("3rd part (Xporting stuff) finished after " + (System.currentTimeMillis()-startTime)/1000d + " seconds.");
+				System.out.format(Locale.US, "%.3f microseconds per cyclist-link-interaction in total.%n%n", 
+						(System.currentTimeMillis()-startTime)/((double) N)/((double) L)*1000d);
+			}
+			if(stopAfterOne){
+				break;
+			}
 		}
 	}
 
@@ -258,7 +280,7 @@ public class Runner {
 	public static void generalPreparation() throws InstantiationException, IllegalAccessException{
 		t =0;
 		notificationArray = (HashMap<Integer, NotificationArrayObject>[]) Array.newInstance(HashMap.class, (int) T+1);
-		shortTermPriorityQueue = (PriorityQueue<LinkQObject>) priorityQueueClassForLinks.newInstance();
+		shortTermPriorityQueue = (PriorityQueue<LinkQObject>) PRIORITY_QUEUE_CLASS_FOR_LINKS.newInstance();
 		for(int i = 0; i < T+1; i++){
 			notificationArray[i] = new HashMap<Integer, NotificationArrayObject>();
 		}
@@ -284,9 +306,9 @@ public class Runner {
 		linksMap = new LinkedHashMap<Integer,Link>();
 		for(int i = 0; i < L; i++){
 			if(i == (L-1)){
-				links[i] = new Link(i,widthOfLastLink,lengthOfLinks);
+				links[i] = new Link(i,WIDTH_OF_LAST_LINK,LENGTH_OF_LINKS);
 			} else {
-				links[i] = new Link(i,widthOfFirstLinks,lengthOfLinks);
+				links[i] = new Link(i,WIDTH_OF_FIRST_LINKS,LENGTH_OF_LINKS);
 			}
 			linksMap.put(links[i].getId(), links[i]);
 		}
@@ -300,15 +322,15 @@ public class Runner {
 	 * Method preparing the cyclist population by assigning a desired speed,
 	 * a link transmission model and an initial arrival time to the system
 	 * for every cyclist in the population. The desired speed is based on
-	 * the distribution chosen in {@link Runner#desiredSpeedDistribution}.
+	 * the distribution chosen in {@link Runner#DESIRED_SPEED_DISTRIBUTION}.
 	 * 
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 */
 	public static void populationPreparation() throws InstantiationException, IllegalAccessException{
-		Random desiredSpeedRandom = new Random(seed);
-		Random arrivalTimeRandom = new Random(seed+9);
-		Random headwayRandom = new Random(seed + 341);
+		Random desiredSpeedRandom = new Random(SEED);
+		Random arrivalTimeRandom = new Random(SEED+9);
+		Random headwayRandom = new Random(SEED + 341);
 		for(int i = 0; i<100; i++){ //Throwing away the first 100 draws;
 			desiredSpeedRandom.nextDouble();
 			arrivalTimeRandom.nextDouble();	
@@ -317,17 +339,20 @@ public class Runner {
 		cyclists= new LinkedList<Cyclist>();
 		for(int id = 0; id < N; id++){
 			double speed = -1;
-			while( speed < minimumAllowedDesiredSpeed){
+			while( speed < MINIMUM_ALLOWED_DESIRED_SPEED){
 				double u = desiredSpeedRandom.nextDouble();
-				switch(desiredSpeedDistribution){
+				switch(DESIRED_SPEED_DISTRIBUTION){
 				case "JohnsonSU":
-					speed = JohnsonLambda * Math.sinh( (ToolBox.qNorm(u) - JohnsonGamma) / JohnsonDelta) + JohnsonXsi;
+					speed = JOHNSON_LAMBDA * Math.sinh( (ToolBox.qNorm(u) - JOHNSON_GAMMA) / JOHNSON_DELTA) + JOHNSON_XSI;
 					break;
 				case "Logistic":
-					speed = mu-Math.log(1/u-1)*s;
+					speed = LOGISTIC_MU - Math.log(1/u-1) * LOGISTIC_S;
+					break;
+				case "Homogeneous":
+					speed = SPACE_MEAN_SPEED;
 					break;
 				default: 
-					throw new IllegalArgumentException("Valid distributions are: JohnsonSU, Logistic");
+					throw new IllegalArgumentException("Valid distributions are: JohnsonSU, Logistic, Homogeneous");
 				}
 			}
 			double time = arrivalTimeRandom.nextDouble()*T;
@@ -337,6 +362,9 @@ public class Runner {
 			}
 
 			double z_c = headwayRandom.nextGaussian();
+			if(DESIRED_SPEED_DISTRIBUTION.equals("Homogeneous")){
+				z_c = 0;
+			}
 
 			Cyclist cyclist = new Cyclist(id, speed, z_c, defaultRoute);
 			cyclists.add(cyclist);
@@ -354,8 +382,8 @@ public class Runner {
 	 * @throws IOException
 	 */
 	public static void simulation() throws InstantiationException, IllegalAccessException, IOException{
-		for( ;t < T; t += timeStep){
-			int timeSlot = (int) (t / timeStep);
+		for( ;t < T; t += TIMESTEP){
+			int timeSlot = (int) (t / TIMESTEP);
 			//Initial check to see if the times in the notification array are still valid - correcting them if not, and 
 			// adding them to the short term priority queue if they are valid.
 
@@ -393,7 +421,7 @@ public class Runner {
 				for(int i_l = 0; i_l < L; i_l++){
 					Link link = links[i_l];
 					link.getDensityReport().
-						addLast(link.getOutQ().size() / (link.getLength() * link.getNumberOfPseudoLanes() / 1000d) );
+					addLast(link.getOutQ().size() / (link.getLength() * link.getNumberOfPseudoLanes() / 1000d) );
 				}
 			}
 		}
@@ -407,15 +435,15 @@ public class Runner {
 	 * @throws IOException
 	 */
 	public static void exportSpeeds() throws IOException{
-		exportCyclistSpeeds(baseDir + "/Cyclists/" + (int) lengthOfLinks);
+		exportCyclistSpeeds(baseDir + "/Cyclists/" + (int) LENGTH_OF_LINKS);
 		exportCyclistDesiredSpeeds(baseDir + "/Cyclists/DesiredSpeeds");
 
 		for(Link link : links){
-			link.exportSpeeds(baseDir + "/Links/" + (int) lengthOfLinks);
-			link.exportDensities(baseDir + "/Links/" + (int) lengthOfLinks);
-			link.exportFlows(baseDir + "/Links/" + (int) lengthOfLinks);
-			link.exportSpeedTimes(baseDir + "/Links/" + (int) lengthOfLinks);
-			link.exportOutputTimes(baseDir + "/Links/" + (int) lengthOfLinks);
+			link.exportSpeeds(baseDir + "/Links/" + (int) LENGTH_OF_LINKS);
+			link.exportDensities(baseDir + "/Links/" + (int) LENGTH_OF_LINKS);
+			link.exportFlows(baseDir + "/Links/" + (int) LENGTH_OF_LINKS);
+			link.exportSpeedTimes(baseDir + "/Links/" + (int) LENGTH_OF_LINKS);
+			link.exportOutputTimes(baseDir + "/Links/" + (int) LENGTH_OF_LINKS);
 		}
 	}
 
