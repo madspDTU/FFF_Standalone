@@ -4,6 +4,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
 
+import fastOrForcedToFollow.Runner.HeadwayDistribution;
+
 
 /**
  * @author mpaulsen
@@ -24,8 +26,16 @@ public class Cyclist {
 	Cyclist(int id, double cruiseSpeed, double z_c, LinkedList<Link> route) throws InstantiationException, IllegalAccessException{
 		this.id = id;
 		this.desiredSpeed = cruiseSpeed;
-		this.theta_0 = Runner.THETA_0 + z_c * Runner.ZETA_0;
-		this.theta_1 = Runner.THETA_1 + z_c * Runner.ZETA_1;
+		if(Runner.HEADWAY_DISTRIBUTION == HeadwayDistribution.BETA){
+			this.theta_0 = Runner.BETA_THETA_0 + (2*z_c-1) * Runner.BETA_ZETA_0;
+			this.theta_1 = Runner.BETA_THETA_1 + (2*z_c-1) * Runner.BETA_ZETA_1;
+		} else if(Runner.HEADWAY_DISTRIBUTION == HeadwayDistribution.BOUNDED_NORMAL){
+			this.theta_0 = Runner.BOUNDED_THETA_0 + z_c * Runner.BOUNDED_ZETA_0;
+			this.theta_1 = Runner.BOUNDED_THETA_1 + z_c * Runner.BOUNDED_ZETA_1;
+		} else {
+			this.theta_0 = Runner.THETA_0 + z_c * Runner.ZETA_0;
+			this.theta_1 = Runner.THETA_1 + z_c * Runner.ZETA_1;
+		}
 		this.route = route;
 		this.ltm = new LinkTransmissionModel(theta_0, theta_1);
 		speedReport.add(new Double[]{-1d, 0d,-1d});

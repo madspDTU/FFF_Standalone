@@ -7,8 +7,8 @@ public class LinkTransmissionModel {
 	final double theta_1;
 	
 	LinkTransmissionModel(double theta_0, double theta_1){
-		this.theta_0 = theta_0;
-		this.theta_1 = theta_1;
+		this.theta_0 = theta_0 * Runner.HEADWAY_MULTIPLIER;
+		this.theta_1 = theta_1 * Runner.HEADWAY_MULTIPLIER;;
 	}
 	
 	public double getSafetyBufferTime(double speed) {

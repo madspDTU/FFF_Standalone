@@ -1,6 +1,7 @@
 package fastOrForcedToFollow;
 
 import java.io.FileWriter;
+
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.HashMap;
@@ -9,6 +10,8 @@ import java.util.LinkedList;
 import java.util.Locale;
 import java.util.PriorityQueue;
 import java.util.Random;
+
+import org.apache.commons.math3.distribution.NormalDistribution;
 
 
 /**
@@ -34,7 +37,7 @@ public class Runner {
 	/**
 	 * The length of each link in the link series. If non-positive then iterating through (20,50,100,200,500)
 	 */
-	public static double LENGTH_OF_LINKS = 10;
+	public static double LENGTH_OF_LINKS = -1;
 
 	/**
 	 * The numbers of links in serial used in the simulation.
@@ -116,11 +119,25 @@ public class Runner {
 	 */
 	private static final double MINIMUM_ALLOWED_DESIRED_SPEED = 2;  // Lowest allowed desired speed (lower truncation of distribution);
 
-	/**
-	 * The distribution used for desired speeds. Valid options are (so far) "JohnsonSU", "Logistic" and "Homogeneous".
-	 */
-	private static final String DESIRED_SPEED_DISTRIBUTION = "JohnsonSU";
 
+	private static final double DESIRED_SPEED_MULTIPLIER = 1.; // 0.95 
+	static final double HEADWAY_MULTIPLIER = 1.; // 1.6  
+
+
+	static final boolean ASSUMING_HOMOGENEITY = false;
+	
+	/**
+	 * The distribution used for desired speeds. Valid options are (so far) "JohnsonSU", "Logistic".
+	 */
+	enum SpeedDistribution { JOHNSON_SU, LOGISTIC };
+	private static final SpeedDistribution DESIRED_SPEED_DISTRIBUTION = SpeedDistribution.JOHNSON_SU;
+
+
+	/**
+	 * The distribution used for headways.
+	 */
+	enum HeadwayDistribution { BETA, NORMAL, BOUNDED_NORMAL};
+	static final  HeadwayDistribution HEADWAY_DISTRIBUTION = HeadwayDistribution.BETA;
 
 	/*
 	 * Desired speed distribution parameters -- Johnson SU   ,  see https://en.wikipedia.org/wiki/Johnson's_SU-distribution
@@ -148,7 +165,7 @@ public class Runner {
 	/**
 	 * The space mean speed [m/s] for desired speed used in certain tests
 	 */
-	private static final double SPACE_MEAN_SPEED = 6.1042421446652;
+	private static final double SPACE_MEAN_SPEED = 6.1042421441361157;
 
 
 
@@ -175,22 +192,40 @@ public class Runner {
 	 */
 	//ORIGINAL public static final double THETA_0 = -4.220641337789;
 	public static final double THETA_0 = -4.233561639232980;
+	public static final double BOUNDED_THETA_0 = -4.4096047388353892;
+	public static final double BETA_THETA_0 = -4.3570197635081049;
+
 	/**
 	 * Square root term in the square root model for safety distance.
 	 */
 	//ORIGINAL public static final double THETA_1 =  4.602161217943;
 	public static final double THETA_1 =  4.601916313111973;
+	public static final double BOUNDED_THETA_1 =  4.7412143565284097;
+	public static final double BETA_THETA_1 =  4.7128195220959830;
+
 	/**
 	 * Constant term in the square root model for standard deviation of safety distance.
 	 */
 	//ORIGINAL public static final double ZETA_0 =  -4.3975231775567600;
 	public static final double ZETA_0 =  -4.397399476679904;
+	public static final double BOUNDED_ZETA_0 =  -22.5034590560309766;
+	public static final double BETA_ZETA_0 =  -9.6741585958330667;
+
 	/**
 	 * Square root term in the square root model for standard deviation of safety distance.
 	 */
 	//ORIGINAL public static final double ZETA_1 =  3.1095184592753986;
 	public static final double ZETA_1 =  3.109430989546536;
-	
+	public static final double BOUNDED_ZETA_1 =   15.9123484986733263;
+	public static final double BETA_ZETA_1 =   6.8406631453876896;
+
+
+	public static final double BOUNDED_ETA = 0.4379727849018566;
+	public static double rejectionSamplingDenominator = 1.-Math.exp(-BOUNDED_ETA*BOUNDED_ETA/2.);;
+
+	public static final double BETA_ALPHA =   1.8647308191839824;
+
+
 	/**
 	 * Average length of a bicycle according to Andresen et al. (2014),
 	 * Basic Driving Dynamics of Cyclists, In: Simulation of Urban Mobility;
@@ -248,27 +283,40 @@ public class Runner {
 	public static long tieBreaker = Long.MIN_VALUE;
 
 
+	public static double samplingScalingBeta;
+	public static double BETA_h;
+
+
+
 
 	public static void main(String[] args) throws IOException, InterruptedException, InstantiationException, IllegalAccessException{
 		boolean stopAfterOne =  LENGTH_OF_LINKS <= 0 ? false : true;
-		
-		for(double d : new double[]{20,50,100,200,500}){
+
+		System.out.println("Headway distribution is " + HEADWAY_DISTRIBUTION);
+
+		//for(double d : new double[]{20,50,100,200,500}){
+			for(double d : new double[]{1,5}){
+				
+			//for(double d : new double[]{100}){
+
 			if(!stopAfterOne){
 				LENGTH_OF_LINKS = d;
 			}
 			for( N = MAX_N; N >= CYCLIST_STEPSIZE; N -= CYCLIST_STEPSIZE){
-				double startTime = System.currentTimeMillis();
+				double startTime = System.nanoTime();
 				System.out.println("Start of a simulation with " + N + " cyclists and " + L + " links.");
 				simulationPreparation();
-				System.out.println("1st part (Initialisation) finished after " + (System.currentTimeMillis()-startTime)/1000d + " seconds.");
+				System.out.println("1st part (Initialisation) finished after " + (System.nanoTime()-startTime)/1000d + " seconds.");
 				simulation();
-				System.out.println("2nd part (Mobility Simul) finished after " + (System.currentTimeMillis()-startTime)/1000d + " seconds.");
+				System.out.println("2nd part (Mobility Simul) finished after " + (System.nanoTime()-startTime)/1000d + " seconds.");
+				double intermediateTime = System.nanoTime();
 				if(reportSpeeds){	
 					exportSpeeds();
 				}
-				System.out.println("3rd part (Xporting stuff) finished after " + (System.currentTimeMillis()-startTime)/1000d + " seconds.");
-				System.out.format(Locale.US, "%.3f microseconds per cyclist-link-interaction in total.%n%n", 
-						(System.currentTimeMillis()-startTime)/((double) N)/((double) L)*1000d);
+				System.out.println("3rd part (Xporting stuff) finished after " + (System.nanoTime()-startTime)/1000d + " seconds.");
+				System.out.format(Locale.US, "%.3f (%.3f excluding export) microseconds per cyclist-link-interaction in total.%n%n", 
+						(System.nanoTime()-startTime)/((double) N)/((double) L)/1000d, 
+						(intermediateTime-startTime)/((double) N)/((double) L)/1000d);
 			}
 			if(stopAfterOne){
 				break;
@@ -336,24 +384,26 @@ public class Runner {
 			arrivalTimeRandom.nextDouble();	
 		}
 
+		NormalDistribution normalDistribution = new NormalDistribution();
 		cyclists= new LinkedList<Cyclist>();
 		for(int id = 0; id < N; id++){
 			double speed = -1;
 			while( speed < MINIMUM_ALLOWED_DESIRED_SPEED){
 				double u = desiredSpeedRandom.nextDouble();
 				switch(DESIRED_SPEED_DISTRIBUTION){
-				case "JohnsonSU":
-					speed = JOHNSON_LAMBDA * Math.sinh( (ToolBox.qNorm(u) - JOHNSON_GAMMA) / JOHNSON_DELTA) + JOHNSON_XSI;
+				case JOHNSON_SU:
+					speed = JOHNSON_LAMBDA * Math.sinh( (normalDistribution.inverseCumulativeProbability(u) - JOHNSON_GAMMA) / JOHNSON_DELTA) + JOHNSON_XSI;
 					break;
-				case "Logistic":
+				case LOGISTIC:
 					speed = LOGISTIC_MU - Math.log(1/u-1) * LOGISTIC_S;
-					break;
-				case "Homogeneous":
-					speed = SPACE_MEAN_SPEED;
 					break;
 				default: 
 					throw new IllegalArgumentException("Valid distributions are: JohnsonSU, Logistic, Homogeneous");
 				}
+				if(ASSUMING_HOMOGENEITY){
+					speed = SPACE_MEAN_SPEED;
+				}
+				speed = DESIRED_SPEED_MULTIPLIER * speed;
 			}
 			double time = arrivalTimeRandom.nextDouble()*T;
 			LinkedList<Link> defaultRoute = new LinkedList<Link>(); // At the moment all routes are equal.
@@ -361,11 +411,45 @@ public class Runner {
 				defaultRoute.addLast(links[i]);
 			}
 
-			double z_c = headwayRandom.nextGaussian();
-			if(DESIRED_SPEED_DISTRIBUTION.equals("Homogeneous")){
-				z_c = 0;
+			double z_c = 0;
+			switch(HEADWAY_DISTRIBUTION){
+			case BETA:
+				while(true){
+					z_c = headwayRandom.nextDouble();
+					double u = headwayRandom.nextDouble();
+					double p = Math.pow(4*z_c*(1-z_c), BETA_ALPHA-1);
+					if(u < p){
+						break;
+					}
+				}
+				break;
+			case BOUNDED_NORMAL:
+				while(true){
+					z_c = headwayRandom.nextGaussian();
+					if(z_c > -BOUNDED_ETA && z_c < BOUNDED_ETA){
+						double u = headwayRandom.nextDouble();
+						double p = (1. - Math.exp((z_c*z_c - BOUNDED_ETA*BOUNDED_ETA)))/rejectionSamplingDenominator;
+						if(u < p){
+							break;
+						}
+					}
+				}
+				break;
+			case NORMAL:
+				z_c = headwayRandom.nextGaussian();
+				break;
+			default:
+				throw new IllegalArgumentException("Valid distributions are: Beta, Bounded Normal, Normal or Homogeneous");
 			}
 
+			if(ASSUMING_HOMOGENEITY){
+				if(HEADWAY_DISTRIBUTION == HeadwayDistribution.BETA){
+					z_c = 0.5;
+				} else {
+					z_c = 0;
+				}
+			}
+			
 			Cyclist cyclist = new Cyclist(id, speed, z_c, defaultRoute);
 			cyclists.add(cyclist);
 			sourceLink.getOutQ().add(new CyclistQObject(time, cyclist));	
